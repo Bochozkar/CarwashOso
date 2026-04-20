@@ -7,7 +7,7 @@ const Client = require('../src/models/Client');
 const Vehicle = require('../src/models/Vehicle');
 
 const connectDB = async () => {
-  await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/carwashoso');
+  await mongoose.connect(process.env.MONGODB_URI);
 };
 
 const seed = async () => {

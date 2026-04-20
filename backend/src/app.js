@@ -29,7 +29,10 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).json({ message: err.message || 'Error interno del servidor' });
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(err.status || 500).json({
+    message: isProd ? 'Error interno del servidor' : (err.message || 'Error interno del servidor')
+  });
 });
 
 const PORT = process.env.PORT || 5000;

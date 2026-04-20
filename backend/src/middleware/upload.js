@@ -18,7 +18,7 @@ const fileFilter = (req, file, cb) => {
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Solo se permiten imágenes'));
+    cb(new Error('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)'));
   }
 };
 
