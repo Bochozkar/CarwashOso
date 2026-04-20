@@ -32,7 +32,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const pkg = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('services');
+    const id = String(req.params.id);
+    const pkg = await Package.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate('services');
     if (!pkg) return res.status(404).json({ message: 'Paquete no encontrado' });
     res.json(pkg);
   } catch (err) {
@@ -42,7 +43,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const pkg = await Package.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
+    const id = String(req.params.id);
+    const pkg = await Package.findByIdAndUpdate(id, { active: false }, { new: true });
     if (!pkg) return res.status(404).json({ message: 'Paquete no encontrado' });
     res.json({ message: 'Paquete desactivado correctamente' });
   } catch (err) {

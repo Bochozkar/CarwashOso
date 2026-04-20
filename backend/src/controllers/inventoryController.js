@@ -49,16 +49,35 @@ exports.addMovement = async (req, res) => {
     if (!type || !quantity) {
       return res.status(400).json({ message: 'Tipo y cantidad son requeridos' });
     }
-    const item = await Inventory.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Artículo no encontrado' });
-
-    if (type === 'salida' && item.stock < quantity) {
-      return res.status(400).json({ message: 'Stock insuficiente' });
+    const numQty = Number(quantity);
+    if (isNaN(numQty) || numQty <= 0) {
+      return res.status(400).json({ message: 'La cantidad debe ser un número positivo' });
     }
 
-    item.stock += type === 'entrada' ? quantity : -quantity;
-    item.movements.push({ type, quantity, reason, user: req.user._id });
-    await item.save();
+    const movement = { type, quantity: numQty, reason, user: req.user._id, date: new Date() };
+
+    let item;
+    if (type === 'salida') {
+      // Atomic check-and-decrement to prevent negative stock race conditions
+      item = await Inventory.findOneAndUpdate(
+        { _id: req.params.id, stock: { $gte: numQty } },
+        { $inc: { stock: -numQty }, $push: { movements: movement } },
+        { new: true }
+      );
+      if (!item) {
+        const exists = await Inventory.exists({ _id: req.params.id });
+        if (!exists) return res.status(404).json({ message: 'Artículo no encontrado' });
+        return res.status(400).json({ message: 'Stock insuficiente' });
+      }
+    } else {
+      item = await Inventory.findByIdAndUpdate(
+        req.params.id,
+        { $inc: { stock: numQty }, $push: { movements: movement } },
+        { new: true }
+      );
+      if (!item) return res.status(404).json({ message: 'Artículo no encontrado' });
+    }
+
     res.json(item);
   } catch (err) {
     res.status(500).json({ message: 'Error al registrar movimiento', error: err.message });

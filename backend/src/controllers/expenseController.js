@@ -50,7 +50,8 @@ exports.update = async (req, res) => {
     if (req.file) {
       data.imageUrl = `/uploads/${req.file.filename}`;
     }
-    const expense = await Expense.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true }).populate('registeredBy');
+    const id = String(req.params.id);
+    const expense = await Expense.findByIdAndUpdate(id, data, { new: true, runValidators: true }).populate('registeredBy');
     if (!expense) return res.status(404).json({ message: 'Gasto no encontrado' });
     res.json(expense);
   } catch (err) {
@@ -60,7 +61,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const expense = await Expense.findByIdAndDelete(req.params.id);
+    const id = String(req.params.id);
+    const expense = await Expense.findByIdAndDelete(id);
     if (!expense) return res.status(404).json({ message: 'Gasto no encontrado' });
     res.json({ message: 'Gasto eliminado correctamente' });
   } catch (err) {

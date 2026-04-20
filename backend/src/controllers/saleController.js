@@ -54,7 +54,8 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { folio, cashier, status, ...data } = req.body;
-    const sale = await Sale.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true })
+    const id = String(req.params.id);
+    const sale = await Sale.findByIdAndUpdate(id, data, { new: true, runValidators: true })
       .populate('client vehicle services packages additionals cashier');
     if (!sale) return res.status(404).json({ message: 'Venta no encontrada' });
     res.json(sale);
@@ -65,7 +66,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const sale = await Sale.findByIdAndDelete(req.params.id);
+    const id = String(req.params.id);
+    const sale = await Sale.findByIdAndDelete(id);
     if (!sale) return res.status(404).json({ message: 'Venta no encontrada' });
     await Process.deleteMany({ sale: sale._id });
     res.json({ message: 'Venta eliminada correctamente' });

@@ -4,7 +4,7 @@ const generateFolio = async () => {
   const today = new Date();
   const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
   const lastSale = await Sale.findOne({ folio: new RegExp(`^OSO-${datePart}-`) })
-    .sort({ createdAt: -1 });
+    .sort({ folio: -1 });
 
   let sequence = 1;
   if (lastSale) {

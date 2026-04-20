@@ -39,7 +39,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const client = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const id = String(req.params.id);
+    const client = await Client.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
     if (!client) return res.status(404).json({ message: 'Cliente no encontrado' });
     res.json(client);
   } catch (err) {
@@ -49,7 +50,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const client = await Client.findByIdAndDelete(req.params.id);
+    const id = String(req.params.id);
+    const client = await Client.findByIdAndDelete(id);
     if (!client) return res.status(404).json({ message: 'Cliente no encontrado' });
     res.json({ message: 'Cliente eliminado correctamente' });
   } catch (err) {

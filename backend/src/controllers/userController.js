@@ -33,8 +33,12 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { password, ...data } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
+    const { password, role, active, ...data } = req.body;
+    // role and active can only be set by admins; this route is restricted to admin/gerente in routing
+    if (role !== undefined) data.role = role;
+    if (active !== undefined) data.active = active;
+    const id = String(req.params.id);
+    const user = await User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
     res.json(user);
   } catch (err) {
@@ -44,7 +48,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
+    const id = String(req.params.id);
+    const user = await User.findByIdAndUpdate(id, { active: false }, { new: true });
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
     res.json({ message: 'Usuario desactivado correctamente' });
   } catch (err) {

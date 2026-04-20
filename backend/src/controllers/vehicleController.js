@@ -55,7 +55,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('client');
+    const id = String(req.params.id);
+    const vehicle = await Vehicle.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate('client');
     if (!vehicle) return res.status(404).json({ message: 'Vehículo no encontrado' });
     res.json(vehicle);
   } catch (err) {
@@ -68,7 +69,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    const id = String(req.params.id);
+    const vehicle = await Vehicle.findByIdAndDelete(id);
     if (!vehicle) return res.status(404).json({ message: 'Vehículo no encontrado' });
     res.json({ message: 'Vehículo eliminado correctamente' });
   } catch (err) {

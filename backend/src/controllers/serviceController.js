@@ -34,7 +34,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const id = String(req.params.id);
+    const service = await Service.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
     if (!service) return res.status(404).json({ message: 'Servicio no encontrado' });
     res.json(service);
   } catch (err) {
@@ -44,7 +45,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
+    const id = String(req.params.id);
+    const service = await Service.findByIdAndUpdate(id, { active: false }, { new: true });
     if (!service) return res.status(404).json({ message: 'Servicio no encontrado' });
     res.json({ message: 'Servicio desactivado correctamente' });
   } catch (err) {
