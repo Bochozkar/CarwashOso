@@ -1,16 +1,17 @@
 const Vehicle = require('../models/Vehicle');
+const escapeRegex = require('../utils/escapeRegex');
 
 exports.getAll = async (req, res) => {
   try {
     const { client, search } = req.query;
     const query = {};
-    if (client) query.client = client;
+    if (client) query.client = String(client);
     if (search) {
       query.$or = [
-        { plate: new RegExp(search, 'i') },
-        { brand: new RegExp(search, 'i') },
-        { model: new RegExp(search, 'i') },
-        { color: new RegExp(search, 'i') }
+        { plate: new RegExp(escapeRegex(search), 'i') },
+        { brand: new RegExp(escapeRegex(search), 'i') },
+        { model: new RegExp(escapeRegex(search), 'i') },
+        { color: new RegExp(escapeRegex(search), 'i') }
       ];
     }
     const vehicles = await Vehicle.find(query).populate('client').sort({ createdAt: -1 });

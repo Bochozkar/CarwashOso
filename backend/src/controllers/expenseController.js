@@ -4,7 +4,7 @@ exports.getAll = async (req, res) => {
   try {
     const { category, startDate, endDate } = req.query;
     const query = {};
-    if (category) query.category = category;
+    if (category) query.category = String(category);
     if (startDate || endDate) {
       query.date = {};
       if (startDate) query.date.$gte = new Date(startDate);

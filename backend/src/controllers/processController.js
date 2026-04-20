@@ -4,8 +4,8 @@ exports.getAll = async (req, res) => {
   try {
     const { status, vehicle } = req.query;
     const query = {};
-    if (status) query.status = status;
-    if (vehicle) query.vehicle = vehicle;
+    if (status) query.status = String(status);
+    if (vehicle) query.vehicle = String(vehicle);
     const processes = await Process.find(query)
       .populate('sale vehicle assignedEmployees')
       .sort({ createdAt: -1 });

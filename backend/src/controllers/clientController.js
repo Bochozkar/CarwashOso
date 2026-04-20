@@ -1,13 +1,14 @@
 const Client = require('../models/Client');
+const escapeRegex = require('../utils/escapeRegex');
 
 exports.getAll = async (req, res) => {
   try {
     const { search } = req.query;
     const query = search
       ? { $or: [
-          { name: new RegExp(search, 'i') },
-          { phone: new RegExp(search, 'i') },
-          { email: new RegExp(search, 'i') }
+          { name: new RegExp(escapeRegex(search), 'i') },
+          { phone: new RegExp(escapeRegex(search), 'i') },
+          { email: new RegExp(escapeRegex(search), 'i') }
         ]}
       : {};
     const clients = await Client.find(query).sort({ name: 1 });

@@ -4,7 +4,7 @@ exports.getAll = async (req, res) => {
   try {
     const { type, active } = req.query;
     const query = {};
-    if (type) query.type = type;
+    if (type) query.type = String(type);
     if (active !== undefined) query.active = active === 'true';
     const services = await Service.find(query).sort({ name: 1 });
     res.json(services);

@@ -2,15 +2,16 @@ const Sale = require('../models/Sale');
 const Process = require('../models/Process');
 const Package = require('../models/Package');
 const generateFolio = require('../utils/generateFolio');
+const escapeRegex = require('../utils/escapeRegex');
 
 exports.getAll = async (req, res) => {
   try {
     const { folio, client, vehicle, status, date } = req.query;
     const query = {};
-    if (folio) query.folio = new RegExp(folio, 'i');
-    if (client) query.client = client;
-    if (vehicle) query.vehicle = vehicle;
-    if (status) query.status = status;
+    if (folio) query.folio = new RegExp(escapeRegex(folio), 'i');
+    if (client) query.client = String(client);
+    if (vehicle) query.vehicle = String(vehicle);
+    if (status) query.status = String(status);
     if (date) {
       const start = new Date(date);
       start.setHours(0, 0, 0, 0);
@@ -110,6 +111,16 @@ exports.rainGuarantee = async (req, res) => {
       return res.status(400).json({ message: 'La garantía de lluvia ha expirado' });
     }
 
+    // Atomically mark guarantee as applied to prevent race conditions
+    const now = new Date();
+    const claimed = await Sale.findOneAndUpdate(
+      { _id: originalSale._id, rainGuaranteeApplied: false, status: 'activa' },
+      { rainGuaranteeApplied: true, rainGuaranteeDate: now }
+    );
+    if (!claimed) {
+      return res.status(409).json({ message: 'La garantía de lluvia ya fue aplicada' });
+    }
+
     const folio = await generateFolio();
     const newSale = await Sale.create({
       folio,
@@ -122,13 +133,9 @@ exports.rainGuarantee = async (req, res) => {
       cashier: req.user._id,
       status: 'garantia',
       rainGuaranteeApplied: true,
-      rainGuaranteeDate: new Date(),
+      rainGuaranteeDate: now,
       originalSale: originalSale._id
     });
-
-    originalSale.rainGuaranteeApplied = true;
-    originalSale.rainGuaranteeDate = new Date();
-    await originalSale.save();
 
     await Process.create({ sale: newSale._id, vehicle: newSale.vehicle });
     res.status(201).json(await newSale.populate('client vehicle services packages cashier'));
